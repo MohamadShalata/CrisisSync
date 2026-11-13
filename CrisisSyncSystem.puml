@@ -1,0 +1,92 @@
+@startuml
+' CrisisSync — Use Case Diagram
+left to right direction
+
+
+actor "System\nAdministrator" as Admin
+actor "Logistics &\nResources Officer" as Logistics
+actor "Dispatcher" as Dispatcher
+actor "Field\nCommander" as Commander
+actor "Field Crew\nMember" as Crew
+actor "National Billing &\nSettlement System" as Billing
+
+rectangle "CrisisSync" {
+  usecase "Log In" as UC_Login
+
+  usecase "Manage Users\nand Permissions" as UC_Users
+  usecase "Load Initial Data" as UC_Load
+  usecase "View and Filter\nEvent History" as UC_History
+  usecase "Generate Reports" as UC_Generate
+  usecase "View Reports" as UC_ViewReports
+
+  usecase "Update Equipment\nStatus" as UC_EquipmentStatus
+  usecase "Transfer Equipment\nBetween Stations" as UC_Transfer
+  usecase "Update Personnel\nAvailability" as UC_Personnel
+
+  usecase "Create Emergency\nEvent" as UC_CreateEvent
+  usecase "Cancel Event" as UC_CancelEvent
+  usecase "Create Task" as UC_CreateTask
+  usecase "Add or Modify\nTask Dependencies" as UC_Dependencies
+  usecase "Validate Task\nDependencies" as UC_Validate
+  usecase "Manually Allocate\nResources" as UC_ManualAllocate
+  usecase "Automatically Allocate\nResources" as UC_AutomaticAllocate
+  usecase "Monitor Events\nin Real Time" as UC_Monitor
+  usecase "Cancel Task" as UC_CancelTask
+  usecase "Handle depending\nTask Cancellation" as UC_depending
+  usecase "Close Event" as UC_Close
+  usecase "Settle Event Costs" as UC_Settle
+  usecase "Allocate Replacement\nEquipment" as UC_Replace
+
+  usecase "View Assigned\nEvents and Tasks" as UC_ViewAssignedEvents
+  usecase "Report Task\nCompletion" as UC_CompleteTask
+  usecase "Report Equipment\nFailure" as UC_ReportFailure
+
+  usecase "Report Shift Start\nand Availability" as UC_Shift
+  usecase "View Assigned Task" as UC_ViewAssignedTask
+}
+
+' Actor–Use Case associations: solid lines, NO arrowheads
+Admin -- UC_Login
+Admin -- UC_Users
+Admin -- UC_Load
+Admin -- UC_History
+Admin -- UC_Generate
+Admin -- UC_ViewReports
+
+Logistics -- UC_Login
+Logistics -- UC_EquipmentStatus
+Logistics -- UC_Transfer
+Logistics -- UC_Personnel
+
+Dispatcher -- UC_Login
+Dispatcher -- UC_CreateEvent
+Dispatcher -- UC_CancelEvent
+Dispatcher -- UC_CreateTask
+Dispatcher -- UC_Dependencies
+Dispatcher -- UC_ManualAllocate
+Dispatcher -- UC_AutomaticAllocate
+Dispatcher -- UC_Monitor
+Dispatcher -- UC_CancelTask
+Dispatcher -- UC_Close
+Dispatcher -- UC_Replace
+
+Commander -- UC_Login
+Commander -- UC_ViewAssignedEvents
+Commander -- UC_CompleteTask
+Commander -- UC_ReportFailure
+
+Crew -- UC_Login
+Crew -- UC_Shift
+Crew -- UC_ViewAssignedTask
+Crew -- UC_ReportFailure
+
+UC_Settle -- Billing
+
+' Include Dependency
+UC_Close ..> UC_Settle : <<include>>
+UC_Dependencies ..> UC_Validate : <<include>>
+
+' Extend Dependencies
+UC_depending ..> UC_CancelTask : <<extend>>
+
+@enduml
