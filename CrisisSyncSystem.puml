@@ -9,6 +9,7 @@ actor "Dispatcher" as Dispatcher
 actor "Field\nCommander" as Commander
 actor "Field Crew\nMember" as Crew
 actor "National Billing &\nSettlement System" as Billing
+actor "Monthly Report Scheduler" as ReportScheduler
 
 rectangle "CrisisSync" {
   usecase "Log In" as UC_Login
@@ -28,13 +29,18 @@ rectangle "CrisisSync" {
   usecase "Create Task" as UC_CreateTask
   usecase "Add or Modify\nTask Dependencies" as UC_Dependencies
   usecase "Validate Task\nDependencies" as UC_Validate
+  usecase "Reject Cyclic Dependency" as UC_RejectCycle
   usecase "Manually Allocate\nResources" as UC_ManualAllocate
   usecase "Automatically Allocate\nResources" as UC_AutomaticAllocate
+  usecase "Verify & Lock Resource Package" as UC_VerifyLockPackage
+  usecase "Rollback Allocation on Resource Conflict" as UC_RollbackAllocation
+  usecase "Fallback to Next Best Available Resource" as UC_FallbackResource
   usecase "Monitor Events\nin Real Time" as UC_Monitor
   usecase "Cancel Task" as UC_CancelTask
   usecase "Handle depending\nTask Cancellation" as UC_depending
   usecase "Close Event" as UC_Close
   usecase "Settle Event Costs" as UC_Settle
+  usecase "Handle Settlement Rejection" as UC_SettlementRejection
   usecase "Allocate Replacement\nEquipment" as UC_Replace
 
   usecase "View Assigned\nEvents and Tasks" as UC_ViewAssignedEvents
@@ -81,12 +87,21 @@ Crew -- UC_ViewAssignedTask
 Crew -- UC_ReportFailure
 
 UC_Settle -- Billing
+UC_Generate -- ReportScheduler
 
 ' Include Dependency
 UC_Close ..> UC_Settle : <<include>>
 UC_Dependencies ..> UC_Validate : <<include>>
+UC_ManualAllocate ..> UC_VerifyLockPackage : <<include>>
+UC_AutomaticAllocate ..> UC_VerifyLockPackage : <<include>>
 
 ' Extend Dependencies
 UC_depending ..> UC_CancelTask : <<extend>>
+UC_RejectCycle ..> UC_Dependencies : <<extend>>
+UC_RollbackAllocation ..> UC_ManualAllocate : <<extend>>
+UC_RollbackAllocation ..> UC_AutomaticAllocate : <<extend>>
+UC_FallbackResource ..> UC_AutomaticAllocate : <<extend>>
+UC_Replace ..> UC_ReportFailure : <<extend>>
+UC_SettlementRejection ..> UC_Close : <<extend>>
 
 @enduml
