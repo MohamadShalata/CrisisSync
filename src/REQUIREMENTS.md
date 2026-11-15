@@ -6,7 +6,7 @@
 ### Engineering Team Details
 - **Student 1:** Amir Sanallah | **ID:** 212716773 | **Braude Email:** Amir.Sanallah@e.braude.ac.il
 - **Student 2:** Kamal Hamdony | **ID:** 324833516 | **Braude Email:** Kamal.Hamdony@e.braude.ac.il
-- **Student 3:** [Your Full Name] | **ID:** [Your ID] | **Braude Email:** [Your Email]
+- **Student 3:** Mohamad Shalata | **ID:** 326564846 | **Braude Email:** Mohamad.Shalata@e.braude.ac.il
 - **Student 4:** Bar Nahman | **ID:** 207851213 | **Braude Email:** Bar.Nahman@e.braude.ac.il
 ---
 
