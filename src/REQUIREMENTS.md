@@ -14,7 +14,7 @@
 
 ### Operation 1: Resource Package Allocation and Task Completion Reporting
 
-| Req ID | Requirement Description | Type & Category | Mapped Use Case | Test ID |
+| Req ID | Requirement Description | Type | Mapped Use Case | Test ID |
 | :--- | :--- | :---: | :--- | :---: |
 | **REQ-01** | The system shall accept a task's resource package definition and allocation request only when the package contains **exactly one** Field Commander designated as responsible for that task, rejecting any package with zero or multiple Field Commanders. | FR | Create Task; Manually Allocate Resources; Automatically Allocate Resources | TEST-01, TEST-02, TEST-03 |
 | **REQ-02** | The system shall allocate a complete resource package to a task in one atomic SQL transaction only when the task is in the `Ready` state, all its predecessors are `Completed`, and all requested resources are `Available`; if any resource in the package cannot be reserved, the system shall roll back the entire transaction and leave the task in the `Ready` state. | FR | Manually Allocate Resources; Automatically Allocate Resources; Verify & Lock Resource Package; Rollback Allocation on Resource Conflict | TEST-03, TEST-04, TEST-06 |
@@ -23,20 +23,19 @@
 | **REQ-05** | The system shall complete (commit or roll back) any resource package allocation transaction within a maximum of **1.5 seconds**, measured from the server's receipt of the allocation request until transaction completion. | NFR | Manually Allocate Resources; Automatically Allocate Resources; Verify & Lock Resource Package | TEST-03, TEST-04, TEST-05, TEST-06 |
 | **REQ-06** | The system shall push task status and resource availability updates via Server Push (without client polling) to all connected, authorized client screens subscribed to the affected event within a maximum of **1.0 second** of each successful state change. | NFR | Monitor Events in Real Time; View Assigned Events and Tasks | TEST-03, TEST-07, TEST-15 |
 | **REQ-07** | The system shall visually highlight any `Active` task on live event status screens within a maximum of **1.0 second** after its elapsed execution time exceeds its defined estimated duration. | NFR | Monitor Events in Real Time; View Assigned Events and Tasks | TEST-08 |
-| **REQ-08** | The system shall prevent double-booking in **100%** of concurrent resource allocation requests by enforcing pessimistic SQL row locking during resource verification and reservation. | NFR | Manually Allocate Resources; Automatically Allocate Resources; Verify & Lock Resource Package | TEST-04, TEST-05, TEST-06 |
+| **REQ-08** | The system shall prevent double-booking in **100%** of concurrent resource allocation requests by enforcing transactional pessimistic locking during resource verification and reservation. | NFR | Manually Allocate Resources; Automatically Allocate Resources; Verify & Lock Resource Package | TEST-04, TEST-05, TEST-06 |
 | **REQ-09** | The system shall reject **100%** of task-completion requests submitted by any user who is not the designated Field Commander for that specific task, leaving the task status and its reserved resources unchanged. | NFR | Report Task Completion | TEST-09 |
 | **REQ-10** | The system shall allow a Dispatcher to initiate resource package allocation (manually or automatically) and a designated Field Commander to report task completion from their respective live event status screens in no more than **3 mouse clicks** per operation. | NFR | Manually Allocate Resources; Automatically Allocate Resources; Report Task Completion; Monitor Events in Real Time; View Assigned Events and Tasks | TEST-03, TEST-05, TEST-07 |
 
 ### Operation 2: Generating the SLA (Time Adherence) Report
 
-| Req ID | Requirement Description | Type & Category | Mapped Use Case | Test ID |
+| Req ID | Requirement Description | Type | Mapped Use Case | Test ID |
 | :--- | :--- | :---: | :--- | :---: |
 | **REQ-11** | The system shall automatically generate the monthly administrative reports (Resource Utilization and SLA Time Adherence reports) at the end of each calendar month and shall also allow the System Administrator to generate the SLA report on demand for any selected past month. | FR | Generate Reports; View Reports | TEST-10, TEST-11 |
 | **REQ-12** | The system shall calculate and display in the SLA report, grouped by emergency event type, the average elapsed time from event opening to the completion of the final task for the events included in the selected reporting period. | FR | Generate Reports; View Reports | TEST-10 |
 | **REQ-13** | The system shall generate and display an on-demand monthly SLA report within a maximum of **5.0 seconds** from the moment the System Administrator submits the request. | NFR | Generate Reports; View Reports | TEST-10, TEST-13 |
 | **REQ-14** | If an SLA report query returns **0** eligible events or exceeds the **5.0-second** timeout threshold, the system shall display an explicit empty-state or timeout message within **0.5 seconds (500 ms)** of detection while keeping the client application usable to retry or select another reporting period. | NFR | Generate Reports; View Reports | TEST-12, TEST-13 |
-| **REQ-15** | The system shall restrict administrative report generation and viewing exclusively to authenticated `System Administrator` accounts, rejecting **100%** of unauthorized access attempts by other user roles. | NFR | Generate Reports; View Reports | TEST-14 |
-
+| **REQ-15** | The system shall restrict interactive administrative report generation and report viewing exclusively to authenticated `System Administrator` accounts, rejecting **100%** of unauthorized access attempts by other user roles, while permitting the authorized `Monthly Report Scheduler` to trigger automatic end-of-month report generation. | NFR | Generate Reports; View Reports | TEST-14 |
 ---
 
 ## BDD Acceptance Tests
@@ -69,7 +68,7 @@
 ### TEST-04: Roll back a conflicting manual resource allocation atomically
 **Given** two Dispatchers concurrently submit manual allocation requests for two different `Ready` tasks whose resource packages both require the same `Available` resource alongside other available resources  
 **When** both allocation transactions attempt to lock and reserve the shared resource simultaneously  
-**Then** the system shall enforce pessimistic SQL row locking so that **100%** of double-booking is prevented and only one transaction reserves the shared resource within **1.5 seconds**  
+**Then** the system shall enforce transactional pessimistic locking so that **100%** of double-booking is prevented and only one transaction reserves the shared resource within **1.5 seconds**  
 **And** the unsuccessful transaction shall roll back in full, leave its task in the `Ready` state, and leave all other resources in its package `Available` (zero partial reservations)  
 **And** the unsuccessful Dispatcher shall be notified that the allocation failed and their screen shall refresh to the current state.
 
@@ -129,8 +128,7 @@
 **Given** the system clock reaches the end of a calendar month  
 **When** the Monthly Report Scheduler triggers the monthly reporting process  
 **Then** the system shall automatically generate the monthly Resource Utilization and SLA (Time Adherence) reports  
-**And** the generated reports shall be stored and made available to the System Administrator.
-
+**And** the generated reports shall be made available for viewing by the System Administrator.
 ---
 
 ### TEST-12: Handle an empty SLA report period gracefully

@@ -1,29 +1,44 @@
 @startuml
-' CrisisSync — Use Case Diagram
+
+' CrisisSync — Use Case Diagram (Final Synced Version)
 left to right direction
+skinparam linetype polyline
+skinparam nodesep 22
+skinparam ranksep 100
 
+' Human Actors (Left Side - Aligned in one vertical column)
+together {
+  actor "System\nAdministrator" as Admin
+  actor "Logistics &\nResources Officer" as Logistics
+  actor "Dispatcher" as Dispatcher
+  actor "Field\nCommander" as Commander
+  actor "Field Crew\nMember" as Crew
+}
 
-actor "System\nAdministrator" as Admin
-actor "Logistics &\nResources Officer" as Logistics
-actor "Dispatcher" as Dispatcher
-actor "Field\nCommander" as Commander
-actor "Field Crew\nMember" as Crew
-actor "National Billing &\nSettlement System" as Billing
-actor "Monthly Report Scheduler" as ReportScheduler
+' Non-Human Actors (Right Side)
+together {
+  actor "National Billing &\nSettlement System" as Billing
+  actor "Monthly Report\nScheduler" as ReportScheduler
+}
 
 rectangle "CrisisSync" {
-  usecase "Log In" as UC_Login
 
+  ' System Administrator Use Cases
   usecase "Manage Users\nand Permissions" as UC_Users
   usecase "Load Initial Data" as UC_Load
   usecase "View and Filter\nEvent History" as UC_History
-  usecase "Generate Reports" as UC_Generate
   usecase "View Reports" as UC_ViewReports
+  usecase "Generate Reports" as UC_Generate
 
+  ' Logistics & Resources Officer Use Cases
   usecase "Update Equipment\nStatus" as UC_EquipmentStatus
   usecase "Transfer Equipment\nBetween Stations" as UC_Transfer
   usecase "Update Personnel\nAvailability" as UC_Personnel
 
+  ' Shared Authentication
+  usecase "Log In" as UC_Login
+
+  ' Dispatcher Use Cases
   usecase "Create Emergency\nEvent" as UC_CreateEvent
   usecase "Cancel Event" as UC_CancelEvent
   usecase "Create Task" as UC_CreateTask
@@ -37,32 +52,38 @@ rectangle "CrisisSync" {
   usecase "Fallback to Next Best Available Resource" as UC_FallbackResource
   usecase "Monitor Events\nin Real Time" as UC_Monitor
   usecase "Cancel Task" as UC_CancelTask
-  usecase "Handle depending\nTask Cancellation" as UC_depending
+  usecase "Handle Dependent\nTask Cancellation" as UC_CancelDependent
   usecase "Close Event" as UC_Close
   usecase "Settle Event Costs" as UC_Settle
   usecase "Handle Settlement Rejection" as UC_SettlementRejection
   usecase "Allocate Replacement\nEquipment" as UC_Replace
 
+  ' Field Commander & Crew Use Cases
   usecase "View Assigned\nEvents and Tasks" as UC_ViewAssignedEvents
   usecase "Report Task\nCompletion" as UC_CompleteTask
   usecase "Report Equipment\nFailure" as UC_ReportFailure
-
   usecase "Report Shift Start\nand Availability" as UC_Shift
   usecase "View Assigned Task" as UC_ViewAssignedTask
 }
 
-' Actor–Use Case associations: solid lines, NO arrowheads
-Admin -- UC_Login
+' Force strict vertical alignment on the left
+Admin -[hidden]down- Logistics
+Logistics -[hidden]down- Dispatcher
+Dispatcher -[hidden]down- Commander
+Commander -[hidden]down- Crew
+
+' Human Actor Associations (Solid lines, NO arrowheads)
 Admin -- UC_Users
 Admin -- UC_Load
 Admin -- UC_History
-Admin -- UC_Generate
 Admin -- UC_ViewReports
+Admin -- UC_Generate
+Admin -- UC_Login
 
-Logistics -- UC_Login
 Logistics -- UC_EquipmentStatus
 Logistics -- UC_Transfer
 Logistics -- UC_Personnel
+Logistics -- UC_Login
 
 Dispatcher -- UC_Login
 Dispatcher -- UC_CreateEvent
@@ -82,22 +103,25 @@ Commander -- UC_CompleteTask
 Commander -- UC_ReportFailure
 
 Crew -- UC_Login
+Crew -- UC_ReportFailure
 Crew -- UC_Shift
 Crew -- UC_ViewAssignedTask
-Crew -- UC_ReportFailure
 
-UC_Settle -- Billing
-UC_Generate -- ReportScheduler
+' Non-Human Actor Associations (Right Side)
+UC_Generate ---- ReportScheduler
+UC_Settle ---- Billing
+ReportScheduler -[hidden]down- Billing
 
-' Include Dependency
+' Include Dependencies (Base ..> Included)
 UC_Close ..> UC_Settle : <<include>>
+UC_CreateTask ..> UC_Validate : <<include>>
 UC_Dependencies ..> UC_Validate : <<include>>
 UC_ManualAllocate ..> UC_VerifyLockPackage : <<include>>
 UC_AutomaticAllocate ..> UC_VerifyLockPackage : <<include>>
 
-' Extend Dependencies
-UC_depending ..> UC_CancelTask : <<extend>>
-UC_RejectCycle ..> UC_Dependencies : <<extend>>
+' Extend Dependencies (Extension ..> Base)
+UC_CancelDependent ..> UC_CancelTask : <<extend>>
+UC_RejectCycle ..> UC_Validate : <<extend>>
 UC_RollbackAllocation ..> UC_ManualAllocate : <<extend>>
 UC_RollbackAllocation ..> UC_AutomaticAllocate : <<extend>>
 UC_FallbackResource ..> UC_AutomaticAllocate : <<extend>>
