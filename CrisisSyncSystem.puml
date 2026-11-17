@@ -1,6 +1,6 @@
 @startuml
 
-' CrisisSync — Use Case Diagram (Final Synced Version)
+' CrisisSync — Use Case Diagram (Synced Version)
 left to right direction
 skinparam linetype polyline
 skinparam nodesep 22
