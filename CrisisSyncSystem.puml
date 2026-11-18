@@ -18,7 +18,7 @@ together {
 ' Non-Human Actors (Right Side)
 together {
   actor "National Billing &\nSettlement System" as Billing
-  actor "Timer" as Timer
+  actor "Scheduler" as Scheduler
 }
 
 rectangle "CrisisSync" {
@@ -111,9 +111,9 @@ Crew -- UC_Shift
 Crew -- UC_ViewAssignedTask
 
 ' Non-Human Actor Associations (Right Side)
-UC_GenerateAuto ---- Timer
+UC_GenerateAuto ---- Scheduler
 UC_Settle ---- Billing
-Timer -[hidden]down- Billing
+Scheduler -[hidden]down- Billing
 
 ' Include Dependencies (Base ..> Included)
 UC_Close ..> UC_Settle : <<include>>
