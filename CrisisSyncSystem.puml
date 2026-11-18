@@ -18,7 +18,7 @@ together {
 ' Non-Human Actors (Right Side)
 together {
   actor "National Billing &\nSettlement System" as Billing
-  actor "Monthly Report\nScheduler" as ReportScheduler
+  actor "Timer" as Timer
 }
 
 rectangle "CrisisSync" {
@@ -28,7 +28,10 @@ rectangle "CrisisSync" {
   usecase "Load Initial Data" as UC_Load
   usecase "View and Filter\nEvent History" as UC_History
   usecase "View Reports" as UC_ViewReports
-  usecase "Generate Reports" as UC_Generate
+  usecase "Generate On-Demand\nReport" as UC_GenerateManual
+
+  ' Timer / Automatic Use Cases
+  usecase "Generate Monthly\nReport" as UC_GenerateAuto
 
   ' Logistics & Resources Officer Use Cases
   usecase "Update Equipment\nStatus" as UC_EquipmentStatus
@@ -77,7 +80,7 @@ Admin -- UC_Users
 Admin -- UC_Load
 Admin -- UC_History
 Admin -- UC_ViewReports
-Admin -- UC_Generate
+Admin -- UC_GenerateManual
 Admin -- UC_Login
 
 Logistics -- UC_EquipmentStatus
@@ -108,9 +111,9 @@ Crew -- UC_Shift
 Crew -- UC_ViewAssignedTask
 
 ' Non-Human Actor Associations (Right Side)
-UC_Generate ---- ReportScheduler
+UC_GenerateAuto ---- Timer
 UC_Settle ---- Billing
-ReportScheduler -[hidden]down- Billing
+Timer -[hidden]down- Billing
 
 ' Include Dependencies (Base ..> Included)
 UC_Close ..> UC_Settle : <<include>>
