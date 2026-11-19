@@ -163,3 +163,4 @@
 **Given** authorized Dispatcher and Field Commander client screens are connected and viewing an open emergency event  
 **When** a successful operation changes the state of a task or the availability status of a resource in that event  
 **Then** the system shall push the updated status via Server Push to all connected, authorized client screens subscribed to that event within **1.0 second** without client polling.
+// final test 
