@@ -31,11 +31,12 @@
 
 | Req ID | Requirement Description | Type | Mapped Use Case | Test ID |
 | :--- | :--- | :---: | :--- | :---: |
-| **REQ-11** | The system shall automatically generate the monthly administrative reports (Resource Utilization and SLA Time Adherence reports) at the end of each calendar month and shall also allow the System Administrator to generate the SLA report on demand for any selected past month. | FR | Generate Reports; View Reports | TEST-10, TEST-11 |
-| **REQ-12** | The system shall calculate and display in the SLA report, grouped by emergency event type, the average elapsed time from event opening to the completion of the final task for the events included in the selected reporting period. | FR | Generate Reports; View Reports | TEST-10 |
-| **REQ-13** | The system shall generate and display an on-demand monthly SLA report within a maximum of **5.0 seconds** from the moment the System Administrator submits the request. | NFR | Generate Reports; View Reports | TEST-10, TEST-13 |
-| **REQ-14** | If an SLA report query returns **0** eligible events or exceeds the **5.0-second** timeout threshold, the system shall display an explicit empty-state or timeout message within **0.5 seconds (500 ms)** of detection while keeping the client application usable to retry or select another reporting period. | NFR | Generate Reports; View Reports | TEST-12, TEST-13 |
-| **REQ-15** | The system shall restrict interactive administrative report generation and report viewing exclusively to authenticated `System Administrator` accounts, rejecting **100%** of unauthorized access attempts by other user roles, while permitting the authorized `Monthly Report Scheduler` to trigger automatic end-of-month report generation. | NFR | Generate Reports; View Reports | TEST-11, TEST-14 |
+| **REQ-11** | The system shall automatically generate the monthly administrative reports (Resource Utilization and SLA Time Adherence reports) at the end of each calendar month when triggered by the `Scheduler`. | FR | Generate Monthly Report | TEST-11 |
+| **REQ-12** | The system shall allow an authenticated `System Administrator` to generate the SLA (Time Adherence) report on demand for any selected past calendar month. | FR | Generate On-Demand Report | TEST-10 |
+| **REQ-13** | The system shall calculate and display in the SLA report, grouped by emergency event type, the average elapsed time from event opening to the completion of the final task for the events included in the selected reporting period. | FR | Generate On-Demand Report; Generate Monthly Report; View Reports | TEST-10 |
+| **REQ-14** | The system shall generate and display an on-demand monthly SLA report within a maximum of **5.0 seconds** from the moment the System Administrator submits the request. | NFR | Generate On-Demand Report | TEST-10, TEST-13 |
+| **REQ-15** | If an SLA report query returns **0** eligible events or exceeds the **5.0-second** timeout threshold, the system shall display an explicit empty-state or timeout message within **0.5 seconds (500 ms)** of detection while keeping the client application usable to retry or select another reporting period. | NFR | Generate On-Demand Report | TEST-12, TEST-13 |
+| **REQ-16** | The system shall restrict interactive administrative report generation and report viewing exclusively to authenticated `System Administrator` accounts, rejecting **100%** of unauthorized access attempts by other user roles, while permitting the authorized `Scheduler` to trigger automatic end-of-month report generation. | NFR | Generate On-Demand Report; Generate Monthly Report; View Reports | TEST-11, TEST-14 |
 
 ---
 
@@ -83,6 +84,7 @@
 **And** without requiring the second Dispatcher to re-submit the request, the second allocation process shall automatically fall back to the next-best `Available` alternative bulldozer (within **2 alternative attempts**) and reserve the complete resource package atomically without leaving any resource partially reserved  
 **And** the entire second allocation process—including initial conflict handling, fallback selection, and final package reservation—shall complete within a maximum of **1.5 seconds** from the server's receipt of the request, transitioning the task to `Active`  
 **And** the Dispatcher shall be able to initiate the automatic allocation from the live status screen in no more than **3 mouse clicks**.
+
 ---
 
 ### TEST-06: Roll back automatic allocation when no alternative resource is available after 2 alternative attempts
@@ -128,7 +130,7 @@
 
 ### TEST-11: Automatically generate monthly reports at the end of the calendar month
 **Given** the system clock reaches the end of a calendar month  
-**When** the Monthly Report Scheduler triggers the monthly reporting process  
+**When** the Scheduler triggers the monthly reporting process  
 **Then** the system shall automatically generate the monthly Resource Utilization and SLA (Time Adherence) reports for the completed calendar month  
 **And** the generated reports shall be made available for viewing by the System Administrator.
 
